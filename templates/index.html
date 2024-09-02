@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Audio File Transcription</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        #loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        h2 {
+            margin: 0;
+            padding: 0;
+        }
+        .textarea-container {
+            position: relative;
+            width: 80%;
+            margin-top: 20px;
+        }
+        .copy-icon {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            font-size: 18px;
+            color: #333;
+        }
+        #transcription, #summary {
+            width: 100%;
+            height: 25vh;
+            padding: 10px;
+            border: 1px solid #ccc;
+            resize: none;
+            border-radius: 15px;
+            margin-top: 5px;
+        }
+        form {
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #file-name {
+            margin-top: 10px;
+            font-style: italic;
+        }
+        .inputWrapper {
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .fileInput {
+            position: absolute;
+            top: 0;
+            right: 0;
+            margin: 0;
+            padding: 0;
+            font-size: 20px;
+            cursor: pointer;
+            opacity: 0;
+            filter: alpha(opacity=0);
+        }
+        .uploadButton {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .uploadButton:hover {
+            background-color: hsl(242, 100%, 23%);
+        }
+    </style>
+</head>
+<body>
+    <h1>FS Corporation コールセンター</h1>
+    
+    <form id="uploadForm" action="/start-transcription" method="post" enctype="multipart/form-data">
+        <div class="inputWrapper">
+            Choose File
+            <input class="fileInput" type="file" name="file" id="fileInput"/>
+        </div>
+        <button type="submit" class="uploadButton">Upload</button>
+        <div id="file-name"></div>
+    </form>
+    
+    <div id="loading">
+        <img src="/static/loading.gif" alt="Loading..." width="50" height="50">
+        <p>Processing...</p>
+        <p id="timer">Time elapsed: 0 seconds</p>
+    </div>
+    
+    <div class="textarea-container">
+        <h2>Transcription</h2>
+        <button class="copy-icon" onclick="copyToClipboard('transcription')">
+            <i class="fas fa-copy"></i>
+        </button>
+        <textarea id="transcription" readonly placeholder="Transcription will appear here..."></textarea>
+    </div>
+
+    <div class="textarea-container">
+        <h2>Summary</h2>
+        <button class="copy-icon" onclick="copyToClipboard('summary')">
+            <i class="fas fa-copy"></i>
+        </button>
+        <textarea id="summary" readonly placeholder="Summary will appear here"></textarea>
+    </div>
+    
+    <script>
+        const form = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('fileInput');
+        const fileNameDisplay = document.getElementById('file-name');
+        const loadingDiv = document.getElementById('loading');
+        const transcriptionTextarea = document.getElementById('transcription');
+        const summaryTextarea = document.getElementById('summary');
+        const timerDisplay = document.getElementById('timer');
+        let startTime;
+
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                fileNameDisplay.textContent = `Selected file: ${file.name}`;
+            } else {
+                fileNameDisplay.textContent = '';
+            }
+        });
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            // Show loading animation and timer
+            loadingDiv.style.display = 'block';
+            startTime = Date.now();
+            updateTimer();
+
+            const formData = new FormData(form);
+            const response = await fetch('/start-transcription', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            transcriptionTextarea.value = result.transcription;
+
+            // Fetch the summary after transcription
+            const summaryResponse = await fetch('/get-summary');
+            const summaryResult = await summaryResponse.json();
+            summaryTextarea.value = summaryResult.summary;
+
+            // Hide loading animation
+            loadingDiv.style.display = 'none';
+        });
+
+        function updateTimer() {
+            const currentTime = Date.now();
+            const elapsedTime = (currentTime - startTime) / 1000; // in seconds
+            timerDisplay.innerText = `Time elapsed: ${elapsedTime.toFixed(1)} seconds`;
+            setTimeout(updateTimer, 100); // Update every 100ms
+        }
+
+        function copyToClipboard(textareaId) {
+            const textarea = document.getElementById(textareaId);
+            textarea.select();
+            document.execCommand('copy');
+
+            const notification = document.createElement('div');
+            notification.innerText = 'Text copied to clipboard';
+            notification.style.position = 'fixed';
+            notification.style.top = '20px'; // Position at the top
+            notification.style.left = '50%'; // Center horizontally
+            notification.style.transform = 'translateX(-50%)'; // Adjust for centering
+            notification.style.backgroundColor = '#007bff';
+            notification.style.color = 'white';
+            notification.style.padding = '10px 15px';
+            notification.style.borderRadius = '5px';
+            notification.style.zIndex = '1000';
+            notification.style.transition = 'opacity 0.5s';
+            notification.style.opacity = '1';
+
+            // Append the notification to the body
+            document.body.appendChild(notification);
+
+            // Fade out the notification after 2 seconds
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 500);
+            }, 2000); //2seconds
+        }
+
+
+    </script>
+</body>
+</html>
