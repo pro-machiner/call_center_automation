@@ -98,7 +98,7 @@
     </form>
     
     <div id="loading">
-        <img src="/static/loading.gif" alt="Loading..." width="50" height="50">
+        <img src="/static/windows_loading.gif" alt="Loading..." width="50" height="50">
         <p>Processing...</p>
         <p id="timer">Time elapsed: 0 seconds</p>
     </div>
@@ -140,6 +140,10 @@
 
         form.addEventListener('submit', async (event) => {
             event.preventDefault();
+            
+            // Clear the text areas
+            transcriptionTextarea.value = '';
+            summaryTextarea.value = '';
             
             // Show loading animation and timer
             loadingDiv.style.display = 'block';
@@ -201,8 +205,6 @@
                 }, 500);
             }, 2000); //2seconds
         }
-
-
     </script>
 </body>
 </html>
