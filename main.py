@@ -12,7 +12,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 model = whisper.load_model("small")
 complete_transcription = ""
-words = open("/Users/mits-mac-001/Code/call_center_automation/dictionary.txt").readlines()[0]
+words = open("dictionary.txt").readlines()[0]
 
 
 
