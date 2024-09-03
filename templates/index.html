@@ -159,14 +159,22 @@
             const result = await response.json();
             transcriptionTextarea.value = result.transcription;
 
-            // Fetch the summary after transcription
-            const summaryResponse = await fetch('/get-summary');
+            // Send the transcription to get summary
+            const summaryResponse = await fetch('/get-summary', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ transcription: transcriptionTextarea.value }),
+            });
+
             const summaryResult = await summaryResponse.json();
             summaryTextarea.value = summaryResult.summary;
 
             // Hide loading animation
             loadingDiv.style.display = 'none';
         });
+
 
         function updateTimer() {
             const currentTime = Date.now();
