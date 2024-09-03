@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Audio File Transcription</title>
+    <title>コールセンター自動報告書</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -86,25 +86,25 @@
     </style>
 </head>
 <body>
-    <h1>FS Corporation コールセンター</h1>
+    <h1>コールセンター自動報告書</h1>
     
     <form id="uploadForm" action="/start-transcription" method="post" enctype="multipart/form-data">
         <div class="inputWrapper">
-            Choose File
+            ファイル選択
             <input class="fileInput" type="file" name="file" id="fileInput"/>
         </div>
-        <button type="submit" class="uploadButton">Upload</button>
+        <button type="submit" class="uploadButton">実行</button>
         <div id="file-name"></div>
     </form>
     
     <div id="loading">
         <img src="/static/windows_loading.gif" alt="Loading..." width="50" height="50">
-        <p>Processing...</p>
+        <p>処理中...</p>
         <p id="timer">Time elapsed: 0 seconds</p>
     </div>
     
     <div class="textarea-container">
-        <h2>Transcription</h2>
+        <h2>通話内容</h2>
         <button class="copy-icon" onclick="copyToClipboard('transcription')">
             <i class="fas fa-copy"></i>
         </button>
@@ -112,7 +112,7 @@
     </div>
 
     <div class="textarea-container">
-        <h2>Summary</h2>
+        <h2>報告書</h2>
         <button class="copy-icon" onclick="copyToClipboard('summary')">
             <i class="fas fa-copy"></i>
         </button>
@@ -132,7 +132,7 @@
         fileInput.addEventListener('change', (event) => {
             const file = event.target.files[0];
             if (file) {
-                fileNameDisplay.textContent = `Selected file: ${file.name}`;
+                fileNameDisplay.textContent = `選択したファイル名: ${file.name}`;
             } else {
                 fileNameDisplay.textContent = '';
             }
@@ -171,7 +171,7 @@
         function updateTimer() {
             const currentTime = Date.now();
             const elapsedTime = (currentTime - startTime) / 1000; // in seconds
-            timerDisplay.innerText = `Time elapsed: ${elapsedTime.toFixed(1)} seconds`;
+            timerDisplay.innerText = `経過時間: ${elapsedTime.toFixed(1)} 秒`;
             setTimeout(updateTimer, 100); // Update every 100ms
         }
 
@@ -181,7 +181,7 @@
             document.execCommand('copy');
 
             const notification = document.createElement('div');
-            notification.innerText = 'Text copied to clipboard';
+            notification.innerText = 'クリップボードにコピーしました';
             notification.style.position = 'fixed';
             notification.style.top = '20px'; // Position at the top
             notification.style.left = '50%'; // Center horizontally
